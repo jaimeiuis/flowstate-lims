@@ -1,0 +1,1 @@
+from flowstate.blueprints.page.views import page

@@ -1,0 +1,15 @@
+{% extends 'layouts/base.html' %}
+
+{% block header %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a href="{{ url_for('page.home') }}">Flowstate</a>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block footer %}
+    <li><a href="{{ url_for('contact.index') }}">Contact</a></li>
+{% endblock %}

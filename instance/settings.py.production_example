@@ -1,0 +1,16 @@
+DEBUG = False
+
+SERVER_NAME = 'localhost:8000'
+SECRET_KEY = 'password'
+
+MAIL_USERNAME = 'flowstate.lims@gmail.com'
+MAIL_PASSWORD = 'password'
+
+CELERY_BROKER_URL = 'redis://:password@redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://:password@redis:6379/0'
+
+db_uri = 'postgresql://flowstate:password@postgres:5432/flowstate'
+SQLALCHEMY_DATABASE_URI = db_uri
+
+SEED_ADMIN_EMAIL = 'dev@local.host'
+SEED_ADMIN_PASSWORD = 'password'
