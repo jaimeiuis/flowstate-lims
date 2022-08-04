@@ -8,6 +8,7 @@ from flask import (
 )
 
 from flask_login import (
+    current_user,
     login_required,
     login_user,
     logout_user
@@ -15,7 +16,7 @@ from flask_login import (
 
 from lib.safe_next_url import safe_next_url
 
-from flowstate.blueprints.user.forms import LoginForm
+from flowstate.blueprints.user.forms import LoginForm, WelcomeForm
 from flowstate.blueprints.user.models import User
 from flowstate.blueprints.user.decorators import anonymous_required
 
@@ -54,3 +55,27 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'success')
     return redirect(url_for('user.login'))
+
+
+@user.route('/welcome', methods=['GET', 'POST'])
+@login_required
+def welcome():
+    if current_user.username:
+        flash('You already picked a username.', 'warning')
+        return redirect(url_for('user.settings'))
+
+    form = WelcomeForm()
+
+    if form.validate_on_submit():
+        current_user.username = request.form.get('username')
+        current_user.save()
+
+        flash('Sign up is complete.', 'success')
+        return redirect(url_for('user.settings'))
+
+    return render_template('user/welcome.html', form=form)
+
+@user.route('/settings')
+@login_required
+def settings():
+    return render_template('user/settings.html')

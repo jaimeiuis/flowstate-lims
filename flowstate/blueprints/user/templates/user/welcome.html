@@ -1,0 +1,31 @@
+{% extends 'layouts/app.html' %}
+{% import 'macros/form.html' as f with context %}
+
+{% block title %}Thanks for signing up{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-5 col-md-push-1 col-md-offset-1 well">
+            {% call f.form_tag('user.welcome') %}
+                <legend>Pick a username</legend>
+
+                {% call f.form_group(form.username, css_class='sm-margin-bottom',
+                                        autofocus='autofocus') %}
+                {% endcall %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <button type="submit">
+                            Save
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="{{ url_for('user.settings') }}">
+                            Do it later
+                        </a>
+                    </div>
+                </div>
+            {% endcall %}    
+        </div>
+    </div>
+{% endblock %}
