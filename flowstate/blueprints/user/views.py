@@ -16,7 +16,11 @@ from flask_login import (
 
 from lib.safe_next_url import safe_next_url
 
-from flowstate.blueprints.user.forms import LoginForm, WelcomeForm
+from flowstate.blueprints.user.forms import (
+    LoginForm,
+    WelcomeForm,
+    SignupForm)
+
 from flowstate.blueprints.user.models import User
 from flowstate.blueprints.user.decorators import anonymous_required
 
@@ -55,6 +59,25 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'success')
     return redirect(url_for('user.login'))
+
+
+@user.route('/signup', methods=['GET', 'POST'])
+@anonymous_required()
+def signup():
+    form = SignupForm()
+
+    if form.validate_on_submit():
+        u = User()
+
+        form.populate_obj(u)
+        u.password = User.encrypt_password(request.form.get('password'))
+        u.save()
+
+        if login_user(u):
+            flash('Awesome, thanks for signing up!', 'success')
+            return redirect(url_for('user.welcome'))
+
+    return render_template('user/signup.html', form=form)
 
 
 @user.route('/welcome', methods=['GET', 'POST'])
