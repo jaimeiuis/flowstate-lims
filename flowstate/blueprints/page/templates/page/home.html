@@ -6,7 +6,11 @@
 {% endblock %}
 
 {% block body %}
-    <div>
-        <a href="#">Login</a>
+    <div class="container sm-margin-top">
+        <div class="row-text-center">
+            <p>
+                <a href="{{ url_for('user.signup') }}">Sign in</a>
+            </p>
+        </div>
     </div>
 {% endblock %}
