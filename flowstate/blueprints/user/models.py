@@ -1,6 +1,10 @@
 from collections import OrderedDict
 
+from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
+from itsdangerous import URLSafeTimedSerializer
+
+from flask import current_app
 
 from flask_login import UserMixin
 
@@ -41,7 +45,6 @@ class User(UserMixin, ResourceMixin, db.Model):
     @classmethod
     def find_by_identity(cls, identity):
         """ Find a user via email or username. """
-
         return User.query.filter(
             (User.email == identity) | (User.username == identity)).first()
 
@@ -72,3 +75,12 @@ class User(UserMixin, ResourceMixin, db.Model):
         self.current_sign_in_ip = ip_address
 
         return self.save()
+
+    def get_auth_token(self):
+        """ Satisfies Flask-Login's requirement for a user's auth token. """
+        private_key = current_app.config['SECRET_KEY']
+
+        serializer = URLSafeTimedSerializer(private_key)
+        data = [str(self.id), md5(self.password.encode('utf-8')).hexdigest()]
+
+        return serializer.dumps(data)
