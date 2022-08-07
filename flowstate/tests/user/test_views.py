@@ -14,6 +14,13 @@ class TestLogin(ViewTestMixin):
         """ Login successfully. """
         response = self.login()
         assert response.status_code == 200
+
+    def test_login_disable(self):
+        """ Fail to login due to disabled account. """
+        response = self.login(identity='disabled@local.host')
+
+        assert_status_with_message(200, response,
+                                    'This account has been disabled.')
         
     def test_login_fail(self):
         """ Fail to login due to invalid login credentials. """
