@@ -35,17 +35,17 @@
     <body>
         {% block header %}{% endblock %}
 
-        <main>
+        <main class="container">
             {{ flash.render() }}
 
-            <div>{% block heading %}{% endblock %}</div>
+            <div class="md-margin-top">{% block heading %}{% endblock %}</div>
             {% block body %}{% endblock %}
         </main>
 
-        <footer>
-            <div>
-                <ul>
-                    <li>Flowstate &copy; 2022</li>
+        <footer class="footer text-center">
+            <div class="container">
+                <ul class="list-inline">
+                    <li class="text-muted">Flowstate &copy; 2022</li>
                     {% block footer %}{% endblock %}
                 </ul>
             </div>
