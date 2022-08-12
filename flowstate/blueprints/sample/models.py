@@ -1,15 +1,30 @@
 from collections import OrderedDict
 
+import datetime
+import pytz
+from lib.util_sqlalchemy import AwareDateTime
+
 from flowstate.extensions import db
 
 
 class Sample(db.Model):
     TYPE = OrderedDict([
-        ()
+        ('saliva', 'Saliva'),
+        ('nasopharyngeal', 'Nasopharyngeal'),
+        ('urine', 'Urine'),
+        ('stool', 'Stool'),
+        ('genital'), ('Genital'),
+        ('skin', 'Skin')
     ])
 
     TEST = OrderedDict([
-        ()
+        ('covid19', 'COVID19'),
+        ('ctrach', 'Ctrach'),
+        ('ngon', 'Ngon'),
+        ('tvag', 'Tvag'),
+        ('hsv', 'HSV'),
+        ('mrsa', 'MRSA'),
+        ('ecoli', 'Ecoli')
     ])
 
     RESULT = OrderedDict([
@@ -30,6 +45,71 @@ class Sample(db.Model):
                                 index=True, nullable=False)
     result = db.Column(db.Enum(*RESULT, name='result_types', native_enum=False),
                                 index=True, nullable=False)
-    accession_date = db.Column()
+    collection_date = db.Column(AwareDateTime(), default=datetime.datetime.now(pytz.utc))
+    accession_date = db.Column(AwareDateTime())
     test_count = db.Column(db.Integer, nullable=False, default=0)
-    report_date = db.Column()
+    report_date = db.Column(AwareDateTime())
+
+    def __init__(self, **kwargs):
+        """ Call Flask-SQLAlchemy's constructor. """
+        super(User, self).__init__(**kwargs)
+
+    @classmethod
+    def find_by_barcode(cls, barcode):
+        """ Find a sample via barcode. """
+        return Sample.query.filter(
+            (Sample.barcode == barcode)).first()
+
+    @classmethod
+    def type_to_test(cls, sample_type, test):
+        """ Ensure that a sample type can only associated be certain tests. """
+        # see what data structure works best for this relationship...might not be an OrderedDict of tuples.
+        pass
+
+    def update_test_count(self):
+        """ Increment the test count. """
+        self.test_count += 1
+        return self.save()
+
+    def update_accession_date(self):
+        """ Update the accession date. """
+        self.accession_date = datetime.datetime.now(pytz.utc)
+        return self.save()
+
+    @classmethod
+    def max_test_count(cls, sample):
+        """ Only allow a max test count of 3. """
+        if sample.test_count >= 3:
+            sample.result = 'retest'
+            sample.report_date = datetime.datetime.now(pytz.utc)
+
+            return self.save()
+
+    @classmethod
+    def expiration(cls, sample_type, collection_date, accession_date):
+        """
+        Report a sample's result as Invalid if it is older than a certain threshold.
+        Depends on the sample type.
+        """
+        # add iteration from type_to_test
+        pass
+
+    def is_valid(self):
+        """ Return whether a sample is valid. """
+        return self.valid
+
+    def result(cls, sample, result):
+        """ Set a sample's result and report_date. """
+        self.result = result
+        self.report_date = datetime.datetime.now(pytz.utc)
+
+        return self.save()
+
+    def save(self):
+        """ Save a model instance. """
+        db.session.add(self)
+        db.session.commit()
+
+        return self
+
+    
