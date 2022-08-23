@@ -11,20 +11,10 @@ class Sample(db.Model):
     TYPE = OrderedDict([
         ('saliva', 'Saliva'),
         ('nasopharyngeal', 'Nasopharyngeal'),
-        ('urine', 'Urine'),
-        ('stool', 'Stool'),
-        ('genital'), ('Genital'),
-        ('skin', 'Skin')
     ])
 
     TEST = OrderedDict([
         ('covid19', 'COVID19'),
-        ('ctrach', 'Ctrach'),
-        ('ngon', 'Ngon'),
-        ('tvag', 'Tvag'),
-        ('hsv', 'HSV'),
-        ('mrsa', 'MRSA'),
-        ('ecoli', 'Ecoli')
     ])
 
     RESULT = OrderedDict([
@@ -63,7 +53,6 @@ class Sample(db.Model):
     @classmethod
     def type_to_test(cls, sample_type, test):
         """ Ensure that a sample type can only associated be certain tests. """
-        # see what data structure works best for this relationship...might not be an OrderedDict of tuples.
         pass
 
     def update_test_count(self):
@@ -86,19 +75,21 @@ class Sample(db.Model):
             return self.save()
 
     @classmethod
-    def expiration(cls, sample_type, collection_date, accession_date):
+    def expiration(self):
         """
         Report a sample's result as Invalid if it is older than a certain threshold.
-        Depends on the sample type.
         """
-        # add iteration from type_to_test
-        pass
+        if self.accession_date - self.collection_date >= 3:
+            self.valid = False
+            self.report_date = datetime.datetime.now(pytz.utc)
+
+        return self.save()
 
     def is_valid(self):
         """ Return whether a sample is valid. """
         return self.valid
 
-    def result(cls, sample, result):
+    def result(sample, result):
         """ Set a sample's result and report_date. """
         self.result = result
         self.report_date = datetime.datetime.now(pytz.utc)
@@ -111,5 +102,24 @@ class Sample(db.Model):
         db.session.commit()
 
         return self
+
+
+class Dashboard(object):
+    @classmethod
+    def group_and_count_samples(cls):
+        return Dashboard._group_and_count(Sample, Sample.test)
+
+    @classmethod
+    def _group_and_count(cls, model, field):
+        count = func.count(field)
+        query = db.session.query(count, field).group_by(field).all()
+
+        results = {
+            'query': query,
+            'total': model.query.count()
+        }
+
+        return results
+
 
     

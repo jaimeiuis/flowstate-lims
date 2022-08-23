@@ -2,7 +2,8 @@ from collections import OrderedDict
 
 from hashlib import md5
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import URLSafeTimedSerializer
+from itsdangerous import URLSafeTimedSerializer, \
+    TimedJSONWebSignatureSerializer
 
 from flask import current_app
 
@@ -84,3 +85,4 @@ class User(UserMixin, ResourceMixin, db.Model):
         data = [str(self.id), md5(self.password.encode('utf-8')).hexdigest()]
 
         return serializer.dumps(data)
+        
